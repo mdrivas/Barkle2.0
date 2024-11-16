@@ -15,7 +15,8 @@
 set -a
 source .env
 
-DB_CONTAINER_NAME="next-postgres"
+# RENAME THIS TO YOUR PROJECT NAME
+DB_CONTAINER_NAME=$(echo "$DATABASE_URL" | awk -F'/' '{print $4}' | awk -F':' '{print $1}')
 
 if ! [ -x "$(command -v docker)" ]; then
   echo -e "Docker is not installed. Please install docker and try again.\nDocker install guide: https://docs.docker.com/engine/install/"
@@ -36,6 +37,8 @@ fi
 DB_PASSWORD=$(echo "$DATABASE_URL" | awk -F':' '{print $3}' | awk -F'@' '{print $1}')
 DB_PORT=$(echo "$DATABASE_URL" | awk -F':' '{print $4}' | awk -F'\/' '{print $1}')
 
+echo
+
 if [ "$DB_PASSWORD" = "password" ]; then
   echo "You are using the default database password"
   read -p "Should we generate a random password for you? [y/N]: " -r REPLY
@@ -45,13 +48,25 @@ if [ "$DB_PASSWORD" = "password" ]; then
   fi
   # Generate a random URL-safe password
   DB_PASSWORD=$(openssl rand -base64 12 | tr '+/' '-_')
-  sed -i '' "s#:password@#:$DB_PASSWORD@#" .env
+  
+  # Cross-platform compatible sed command
+  case "$(uname)" in
+    "Darwin") # macOS
+      sed -i '' "s#:password@#:$DB_PASSWORD@#" .env
+      ;;
+    "Linux") # Linux
+      sed -i "s#:password@#:$DB_PASSWORD@#" .env
+      ;;
+    *) # Windows Git Bash and others
+      sed -i.bak "s#:password@#:$DB_PASSWORD@#" .env && rm .env.bak
+      ;;
+  esac
 fi
 
 docker run -d \
   --name $DB_CONTAINER_NAME \
   -e POSTGRES_USER="postgres" \
   -e POSTGRES_PASSWORD="$DB_PASSWORD" \
-  -e POSTGRES_DB="next-postgres" \
+  -e POSTGRES_DB="$DB_CONTAINER_NAME" \
   -p "$DB_PORT":5432 \
   docker.io/postgres && echo "Database container '$DB_CONTAINER_NAME' was successfully created"
