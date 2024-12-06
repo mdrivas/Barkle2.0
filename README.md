@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
@@ -56,3 +57,7 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 1. Shadcn UI components are located in `src/components/ui`
 2. Use npx shadcn-ui@latest add {component} to add a new component it will automatically update the `src/components/ui/index.tsx` file
 3. Reference the website for the component you want to use here: https://ui.shadcn.com/
+=======
+# Barkle2.0
+Woof!
+>>>>>>> f96fdff19709dc874c405586ef3a3df3b18e76e0
